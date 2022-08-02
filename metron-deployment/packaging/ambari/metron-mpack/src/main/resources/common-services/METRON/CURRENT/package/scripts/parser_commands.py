@@ -104,7 +104,7 @@ class ParserCommands:
 
     def __get_kafka_acl_groups(self):
         # Parser group is the parser name + '_parser'
-        return [parser + '_parser' for parser in self.get_parser_list()]
+        return [f'{parser}_parser' for parser in self.get_parser_list()]
 
     def is_configured(self):
         return self.__configured
@@ -156,17 +156,18 @@ class ParserCommands:
                                     -ksp {4}"""
         if self.__params.security_enabled:
             # Append the extra configs needed for secured cluster.
-            start_cmd_template = start_cmd_template + ' -e ~' + self.__params.metron_user + '/.storm/storm.config'
+            start_cmd_template = f'{start_cmd_template} -e ~{self.__params.metron_user}/.storm/storm.config'
+
             metron_security.kinit(self.__params.kinit_path_local,
                                   self.__params.metron_keytab_path,
                                   self.__params.metron_principal_name,
                                   execute_user=self.__params.metron_user)
 
         stopped_parsers = set(self.__get_aggr_parsers(self.__params)) - self.get_running_topology_names(env)
-        Logger.info('Parsers that need started: ' + str(stopped_parsers))
+        Logger.info(f'Parsers that need started: {str(stopped_parsers)}')
 
         for parser in stopped_parsers:
-            Logger.info('Starting ' + parser)
+            Logger.info(f'Starting {parser}')
             start_cmd = start_cmd_template.format(self.__params.metron_home,
                                                   self.__params.kafka_brokers,
                                                   self.__params.zookeeper_quorum,
@@ -180,11 +181,11 @@ class ParserCommands:
         Logger.info('Stopping parsers')
 
         running_parsers = set(self.get_parser_aggr_topology_names(self.__params)) & self.get_running_topology_names(env)
-        Logger.info('Parsers that need stopped: ' + str(running_parsers))
+        Logger.info(f'Parsers that need stopped: {str(running_parsers)}')
 
         for parser in running_parsers:
-            Logger.info('Stopping ' + parser)
-            stop_cmd = 'storm kill ' + parser
+            Logger.info(f'Stopping {parser}')
+            stop_cmd = f'storm kill {parser}'
             if self.__params.security_enabled:
                 metron_security.kinit(self.__params.kinit_path_local,
                                       self.__params.metron_keytab_path,
@@ -210,8 +211,7 @@ class ParserCommands:
     def topologies_exist(self):
         cmd_open = subprocess.Popen(["storm", "list"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         (stdout, stderr) = cmd_open.communicate()
-        stdout_lines = stdout.splitlines()
-        if stdout_lines:
+        if stdout_lines := stdout.splitlines():
             status_lines = self.__get_status_lines(stdout_lines)
             for parser in self.get_parser_list():
                 for line in status_lines:

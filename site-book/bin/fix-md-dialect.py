@@ -92,11 +92,8 @@ class INDENT_STACK :
         # adjust topmost type
         self.my_stack[-1]['type'] = new_type
 
-    def pop_indent(self) :
-        if len(self.my_stack) > 1 :
-            return self.my_stack.pop()['physical']
-        else :
-            return 0
+    def pop_indent(self):
+        return self.my_stack.pop()['physical'] if len(self.my_stack) > 1 else 0
 
     def current_indent(self) :
         # top of stack, physical
@@ -126,20 +123,26 @@ def convert_tabs(s) :
     return s
 
 
-def fix_prefix_blanks(new_type) :
+def fix_prefix_blanks(new_type):
     global inputline
     # Fix up the indenting (prefix blanks) in inputline.  This fixes problem #2.
     # Don't worry about blank lines here, they are filtered out before calling this method.
     # Both uses and maintains the indent stack, which is why we need the new_type passed in.
     prefix_blanks = re.search(r'^[\s]*', inputline)
-    if prefix_blanks :
+    if prefix_blanks:
         prefix_blanks = prefix_blanks.group()
-        trace("After prefix-blanks match, prefix_blanks is |" + prefix_blanks + "| length is " + str(len(prefix_blanks)) )
+        trace(
+            f"After prefix-blanks match, prefix_blanks is |{prefix_blanks}| length is {len(prefix_blanks)}"
+        )
+
         prefix_blanks = convert_tabs(prefix_blanks)
-    else :
+    else:
         prefix_blanks = ""
 
-    trace("After convert_tabs, prefix_blanks is |" + prefix_blanks + "| length is " + str(len(prefix_blanks)) )
+    trace(
+        f"After convert_tabs, prefix_blanks is |{prefix_blanks}| length is {len(prefix_blanks)}"
+    )
+
 
     # prefix_blanks now contains the 'physical' indent of the current paragraph, after tab substitution.
     # The indent of this paragraph may be > or == to the previous paragraph.  Those are the easy cases.
@@ -164,14 +167,20 @@ def fix_prefix_blanks(new_type) :
 
     # Now whack off the prefix blanks, and replace with a standardized string of blanks appropriate to
     # the logical indent level.
-    trace("Orig line is " + inputline)
-    inputline = re.sub(r'^[\s]*', BLANKS[0 : 4*indent_stack.logical_indent_level()], inputline, 1)
-    trace("New line is  " + inputline)
+    trace(f"Orig line is {inputline}")
+    inputline = re.sub(
+        r'^[\s]*',
+        BLANKS[: 4 * indent_stack.logical_indent_level()],
+        inputline,
+        1,
+    )
+
+    trace(f"New line is  {inputline}")
 
 
-def rewrite_relative_links() :
+def rewrite_relative_links():
     global inputline
-    trace("entering with line: " + inputline)
+    trace(f"entering with line: {inputline}")
     # Fix up the relative links in inputline.  This fixes problem #5.
     num_links = inputline.count("](")
     links = re.findall(r'\[[^\]]+\]\([^)]+\)', inputline)
@@ -187,14 +196,14 @@ def rewrite_relative_links() :
         else :
             report_error("Found link split across multiple lines.  We can't process this.")
 
-    for linkitem in links :
+    for linkitem in links:
         pieces = re.search(r'(\[[\s`]*)([^\]]*[^\s`\]])([\s`]*\]\([\s]*)([^\s]+)([\s]*\))', linkitem).groups()
-        trace("Link: " + linkitem)
+        trace(f"Link: {linkitem}")
         trace("Pieces: " + " ".join( (pieces[0],pieces[1],pieces[2],pieces[3],pieces[4]) ))
         labeltext = pieces[1]
         href = pieces[3]
-        trace("Extracted labeltext is: " + labeltext)
-        trace("Extracted href is: " + href)
+        trace(f"Extracted labeltext is: {labeltext}")
+        trace(f"Extracted href is: {href}")
         if re.search(r'^http|\?', href) :
             # Don't rewrite absolute or parameterized URLs; neither is native to this markdown book.
             trace("skipping absolute or parameterized URL")
@@ -204,7 +213,7 @@ def rewrite_relative_links() :
         # with 'file:///' preview as with a real web server.
         # We are only concerned with file path names here, so split at '#' if present.
         num_sharps = href.count("#")
-        if (num_sharps >= 2) :
+        if (num_sharps >= 2):
             report_error("Multiple #'s in a single link href.")
         elif (num_sharps == 1) :
             # Implicit index references are directory names, which seldom have a filetype suffix.
@@ -221,11 +230,11 @@ def rewrite_relative_links() :
             href = re.sub(r'/README\.md#', "/index.html#", href)
             href = re.sub(r'\.md#', ".html#", href)
 
-        else :  # num_sharps == 0
+        else:  # num_sharps == 0
             # Same logic as above, just at $ instead of #.
-            if not re.search(r'\.[^/]+$', href) :
-                if not href.endswith("/") :
-                    href = href + "/"
+            if not re.search(r'\.[^/]+$', href):
+                if not href.endswith("/"):
+                    href = f"{href}/"
                 href = re.sub(r'/$', "/index.html", href)
 
             # Fix up '.md' references.
@@ -233,35 +242,35 @@ def rewrite_relative_links() :
             href = re.sub(r'/README\.md$', "/index.html", href)
             href = re.sub(r'\.md$', ".html", href)
 
-        trace("After .md fixup, href is: " + href)
+        trace(f"After .md fixup, href is: {href}")
 
         # Re-write named anchors referring to generated tags.
         sharp = href.find("#")
-        if (sharp >= 0) :
+        if (sharp >= 0):
             named_anchor = href[sharp+1 : ]
             trace('named_anchor = "' + named_anchor + '"')
             trace('labeltext = "' + labeltext + '"')
             scratch = labeltext.lower()                  # Github-MD forces all anchors to lowercase
             scratch = re.sub(r'[\s]', "-", scratch)      # convert whitespace to "-"
             scratch = re.sub(EXCLUDED_CHARS_REGEX_GHM, "", scratch)  # strip non-alphanumerics
-            if (scratch == named_anchor) :
+            if (scratch == named_anchor):
                 trace("Found a rewritable case")
                 scratch = labeltext                      # Doxia-markdown doesn't change case
                 scratch = re.sub(r'[\s]', "_", scratch)  # convert whitespace to "_"
                 scratch = re.sub(EXCLUDED_CHARS_REGEX_DOX, "", scratch)  # strip non-alphanumerics except "."
-                href = re.sub("#" + named_anchor, "#" + scratch, href)
+                href = re.sub(f"#{named_anchor}", f"#{scratch}", href)
 
-        trace("After anchor rewrite, href is: " + href)
-        
+        trace(f"After anchor rewrite, href is: {href}")
+
         # Now swap out the bad href for the fixed one in inputline.
-        if (href != pieces[3]) :
+        if (href != pieces[3]):
             # Assemble the full link string to prevent similar substrings (to href) in different contexts being substituted.
             scratch = pieces[0] + pieces[1] + pieces[2] + href + pieces[4]
-            trace("Fixed link text is: " + scratch)
-            trace("linkitem is still:  " + linkitem)
+            trace(f"Fixed link text is: {scratch}")
+            trace(f"linkitem is still:  {linkitem}")
             k = inputline.find(linkitem)
             inputline = inputline[ : k] + scratch + inputline[ k + len(linkitem) : ]
-            trace("Fixed inputline is: " + inputline)
+            trace(f"Fixed inputline is: {inputline}")
 
 
 

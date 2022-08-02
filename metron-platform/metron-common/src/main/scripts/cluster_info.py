@@ -73,8 +73,7 @@ class ShellHandler(object):
     def ret_output(self, cmd):
         process = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
         output, unused_err = process.communicate()
-        retcode = process.poll()
-        if retcode:
+        if retcode := process.poll():
             raise subprocess.CalledProcessError(retcode, cmd, output=output)
         return output
 
@@ -118,9 +117,9 @@ class StormInfo(InfoGatherer):
     def __init__(self, host_info):
         super(StormInfo, self).__init__('Storm')
         url_base = 'http://{0}/api/v1'.format(host_info)
-        self.url_cluster_summary = url_base + '/cluster/summary'
-        self.url_cluster_configuration = url_base + '/cluster/configuration'
-        self.url_topology_summary = url_base + '/topology/summary'
+        self.url_cluster_summary = f'{url_base}/cluster/summary'
+        self.url_cluster_configuration = f'{url_base}/cluster/configuration'
+        self.url_topology_summary = f'{url_base}/topology/summary'
         self.url_topology_stats_summary = url_base + '/topology/{0}?sys=1'
 
     def collect(self, out_dir):
@@ -378,11 +377,11 @@ class ClusterInfo:
         return os.path.join(out_dir_base, 'metron-debug-' + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'))
 
     def compress_files(self, out_dir):
+        tarball_name = f'{out_dir}.tgz'
         tarball_name = out_dir + '.tgz'
-        print "Creating tarfile bundle with all configs: '{0}'".format(tarball_name)
         with closing(tarfile.open(tarball_name, 'w:gz')) as tar:
             tar.add(out_dir, arcname=os.path.basename(out_dir))
-        print "...done"
+        tarball_name = out_dir + '.tgz'
 
 if __name__ == "__main__":
     ClusterInfo().main()

@@ -18,6 +18,7 @@ limitations under the License.
 
 """
 
+
 from resource_management.libraries.functions import default, format
 from resource_management.libraries.functions import get_kinit_path
 from resource_management.libraries.functions.version import format_stack_version
@@ -31,22 +32,47 @@ metron_home = config['configurations']['metron-env']['metron_home']
 metron_zookeeper_config_dir = config['configurations']['metron-env']['metron_zookeeper_config_dir']
 metron_zookeeper_config_path = format('{metron_home}/{metron_zookeeper_config_dir}')
 # indicates if zk_load_configs.sh --mode PUSH has been executed
-zk_configured_flag_file = metron_zookeeper_config_path + '/../metron_zookeeper_configured'
+zk_configured_flag_file = (
+    f'{metron_zookeeper_config_path}/../metron_zookeeper_configured'
+)
+
 
 # Parsers
 parsers = config['configurations']['metron-parsers-env']['parsers']
-parsers_configured_flag_file = metron_zookeeper_config_path + '/../metron_parsers_configured'
-parsers_acl_configured_flag_file = metron_zookeeper_config_path + '/../metron_parsers_acl_configured'
+parsers_configured_flag_file = (
+    f'{metron_zookeeper_config_path}/../metron_parsers_configured'
+)
+
+parsers_acl_configured_flag_file = (
+    f'{metron_zookeeper_config_path}/../metron_parsers_acl_configured'
+)
+
 
 # Enrichment
 metron_enrichment_topology = 'enrichment'
 enrichment_input_topic = config['configurations']['metron-enrichment-env']['enrichment_input_topic']
-enrichment_kafka_configured_flag_file = metron_zookeeper_config_path + '/../metron_enrichment_kafka_configured'
-enrichment_kafka_acl_configured_flag_file = metron_zookeeper_config_path + '/../metron_enrichment_kafka_acl_configured'
-enrichment_hbase_configured_flag_file = metron_zookeeper_config_path + '/../metron_enrichment_hbase_configured'
-enrichment_hbase_coprocessor_configured_flag_file = metron_zookeeper_config_path + '/../metron_enrichment_hbase_coprocessor_configured'
-enrichment_hbase_acl_configured_flag_file = metron_zookeeper_config_path + '/../metron_enrichment_hbase_acl_configured'
-enrichment_maxmind_configured_flag_file = metron_zookeeper_config_path + '/../metron_enrichment_maxmind_configured'
+enrichment_kafka_configured_flag_file = (
+    f'{metron_zookeeper_config_path}/../metron_enrichment_kafka_configured'
+)
+
+enrichment_kafka_acl_configured_flag_file = (
+    f'{metron_zookeeper_config_path}/../metron_enrichment_kafka_acl_configured'
+)
+
+enrichment_hbase_configured_flag_file = (
+    f'{metron_zookeeper_config_path}/../metron_enrichment_hbase_configured'
+)
+
+enrichment_hbase_coprocessor_configured_flag_file = f'{metron_zookeeper_config_path}/../metron_enrichment_hbase_coprocessor_configured'
+
+enrichment_hbase_acl_configured_flag_file = (
+    f'{metron_zookeeper_config_path}/../metron_enrichment_hbase_acl_configured'
+)
+
+enrichment_maxmind_configured_flag_file = (
+    f'{metron_zookeeper_config_path}/../metron_enrichment_maxmind_configured'
+)
+
 
 enrichment_hbase_table = config['configurations']['metron-enrichment-env']['enrichment_hbase_table']
 enrichment_hbase_cf = config['configurations']['metron-enrichment-env']['enrichment_hbase_cf']
@@ -64,35 +90,78 @@ metron_profiler_topology = 'profiler'
 profiler_input_topic = config['configurations']['metron-enrichment-env']['enrichment_output_topic']
 profiler_hbase_table = config['configurations']['metron-profiler-env']['profiler_hbase_table']
 profiler_hbase_cf = config['configurations']['metron-profiler-env']['profiler_hbase_cf']
-profiler_configured_flag_file = metron_zookeeper_config_path + '/../metron_profiler_configured'
-profiler_acl_configured_flag_file = metron_zookeeper_config_path + '/../metron_profiler_acl_configured'
-profiler_hbase_configured_flag_file = metron_zookeeper_config_path + '/../metron_profiler_hbase_configured'
-profiler_hbase_acl_configured_flag_file = metron_zookeeper_config_path + '/../metron_profiler_hbase_acl_configured'
+profiler_configured_flag_file = (
+    f'{metron_zookeeper_config_path}/../metron_profiler_configured'
+)
+
+profiler_acl_configured_flag_file = (
+    f'{metron_zookeeper_config_path}/../metron_profiler_acl_configured'
+)
+
+profiler_hbase_configured_flag_file = (
+    f'{metron_zookeeper_config_path}/../metron_profiler_hbase_configured'
+)
+
+profiler_hbase_acl_configured_flag_file = (
+    f'{metron_zookeeper_config_path}/../metron_profiler_hbase_acl_configured'
+)
+
 
 
 # Indexing
 metron_batch_indexing_topology = 'batch_indexing'
 metron_random_access_indexing_topology = 'random_access_indexing'
 indexing_input_topic = config['configurations']['metron-indexing-env']['indexing_input_topic']
-indexing_configured_flag_file = metron_zookeeper_config_path + '/../metron_indexing_configured'
-indexing_acl_configured_flag_file = metron_zookeeper_config_path + '/../metron_indexing_acl_configured'
-indexing_hdfs_perm_configured_flag_file = metron_zookeeper_config_path + '/../metron_indexing_hdfs_perm_configured'
-indexing_hbase_configured_flag_file = metron_zookeeper_config_path + '/../metron_indexing_hbase_configured'
-indexing_hbase_acl_configured_flag_file = metron_zookeeper_config_path + '/../metron_indexing_hbase_acl_configured'
+indexing_configured_flag_file = (
+    f'{metron_zookeeper_config_path}/../metron_indexing_configured'
+)
+
+indexing_acl_configured_flag_file = (
+    f'{metron_zookeeper_config_path}/../metron_indexing_acl_configured'
+)
+
+indexing_hdfs_perm_configured_flag_file = (
+    f'{metron_zookeeper_config_path}/../metron_indexing_hdfs_perm_configured'
+)
+
+indexing_hbase_configured_flag_file = (
+    f'{metron_zookeeper_config_path}/../metron_indexing_hbase_configured'
+)
+
+indexing_hbase_acl_configured_flag_file = (
+    f'{metron_zookeeper_config_path}/../metron_indexing_hbase_acl_configured'
+)
+
 
 # Elasticsearch
-elasticsearch_template_installed_flag_file = metron_zookeeper_config_path + '/../metron_elasticsearch_template_installed_flag_file'
+elasticsearch_template_installed_flag_file = f'{metron_zookeeper_config_path}/../metron_elasticsearch_template_installed_flag_file'
+
 
 # Solr
-solr_schema_installed_flag_file = metron_zookeeper_config_path + '/../metron_solr_schema_installed_flag_file'
+solr_schema_installed_flag_file = (
+    f'{metron_zookeeper_config_path}/../metron_solr_schema_installed_flag_file'
+)
+
 
 # REST
 metron_rest_host = default("/clusterHostInfo/metron_rest_hosts", [hostname])[0]
 metron_rest_port = config['configurations']['metron-rest-env']['metron_rest_port']
-rest_kafka_configured_flag_file = metron_zookeeper_config_path + '/../metron_rest_kafka_configured'
-rest_kafka_acl_configured_flag_file = metron_zookeeper_config_path + '/../metron_rest_kafka_acl_configured'
-rest_hbase_configured_flag_file = metron_zookeeper_config_path + '/../metron_rest_hbase_configured'
-rest_hbase_acl_configured_flag_file = metron_zookeeper_config_path + '/../metron_rest_hbase_acl_configured'
+rest_kafka_configured_flag_file = (
+    f'{metron_zookeeper_config_path}/../metron_rest_kafka_configured'
+)
+
+rest_kafka_acl_configured_flag_file = (
+    f'{metron_zookeeper_config_path}/../metron_rest_kafka_acl_configured'
+)
+
+rest_hbase_configured_flag_file = (
+    f'{metron_zookeeper_config_path}/../metron_rest_hbase_configured'
+)
+
+rest_hbase_acl_configured_flag_file = (
+    f'{metron_zookeeper_config_path}/../metron_rest_hbase_acl_configured'
+)
+
 user_settings_hbase_table = config['configurations']['metron-rest-env']['user_settings_hbase_table']
 user_settings_hbase_cf = config['configurations']['metron-rest-env']['user_settings_hbase_cf']
 
@@ -133,12 +202,26 @@ metron_keytab_path = config['configurations']['metron-env']['metron_service_keyt
 # Pcap
 metron_pcap_topology = 'pcap'
 pcap_input_topic = config['configurations']['metron-pcap-env']['spout_kafka_topic_pcap']
-pcap_configured_flag_file = metron_zookeeper_config_path + '/../metron_pcap_configured'
-pcap_perm_configured_flag_file = metron_zookeeper_config_path + '/../metron_pcap_perm_configured'
-pcap_acl_configured_flag_file = metron_zookeeper_config_path + '/../metron_pcap_acl_configured'
+pcap_configured_flag_file = (
+    f'{metron_zookeeper_config_path}/../metron_pcap_configured'
+)
+
+pcap_perm_configured_flag_file = (
+    f'{metron_zookeeper_config_path}/../metron_pcap_perm_configured'
+)
+
+pcap_acl_configured_flag_file = (
+    f'{metron_zookeeper_config_path}/../metron_pcap_acl_configured'
+)
+
 
 # MapReduce
-metron_user_hdfs_dir_configured_flag_file = metron_zookeeper_config_path + '/../metron_user_hdfs_dir_configured'
+metron_user_hdfs_dir_configured_flag_file = (
+    f'{metron_zookeeper_config_path}/../metron_user_hdfs_dir_configured'
+)
+
 
 # Knox
-metron_knox_installed_flag_file = metron_zookeeper_config_path + '/../metron_knox_installed'
+metron_knox_installed_flag_file = (
+    f'{metron_zookeeper_config_path}/../metron_knox_installed'
+)

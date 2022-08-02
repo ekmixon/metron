@@ -113,7 +113,7 @@ class ProfilerCommands:
         Logger.info("Done setting HBase ACLs for profiler")
 
     def start_profiler_topology(self, env):
-        Logger.info('Starting ' + self.__profiler_topology)
+        Logger.info(f'Starting {self.__profiler_topology}')
 
         if not self.is_topology_active(env):
             if self.__params.security_enabled:
@@ -134,7 +134,7 @@ class ProfilerCommands:
         Logger.info('Finished starting profiler topology')
 
     def stop_profiler_topology(self, env):
-        Logger.info('Stopping ' + self.__profiler_topology)
+        Logger.info(f'Stopping {self.__profiler_topology}')
 
         if self.is_topology_active(env):
             if self.__params.security_enabled:
@@ -142,7 +142,7 @@ class ProfilerCommands:
                                       self.__params.metron_keytab_path,
                                       self.__params.metron_principal_name,
                                       execute_user=self.__params.metron_user)
-            stop_cmd = 'storm kill ' + self.__profiler_topology
+            stop_cmd = f'storm kill {self.__profiler_topology}'
             Execute(stop_cmd, user=self.__params.metron_user, tries=3, try_sleep=5, logoutput=True)
 
         else:

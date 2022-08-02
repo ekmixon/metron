@@ -52,8 +52,7 @@ def packet_header(msg):
     secs = epoch_micros / 1000000
     usec = epoch_micros % 1000000
     caplen = wirelen = len(msg.value())
-    hdr = struct.pack('IIII', secs, usec, caplen, wirelen)
-    return hdr
+    return struct.pack('IIII', secs, usec, caplen, wirelen)
 
 
 def seek_to_end(consumer, partitions):

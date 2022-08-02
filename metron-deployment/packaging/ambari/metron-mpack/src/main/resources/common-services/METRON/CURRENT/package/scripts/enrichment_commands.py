@@ -150,7 +150,7 @@ class EnrichmentCommands:
             topology_flux = "{0}/flux/enrichment/remote.yaml".format(self.__params.metron_home)
             topology_props = "{0}/config/enrichment.properties".format(self.__params.metron_home)
             start_cmd_template = """{0}/bin/start_enrichment_topology.sh --remote {1} --filter {2}"""
-            Logger.info('Starting ' + self.__enrichment_topology)
+            Logger.info(f'Starting {self.__enrichment_topology}')
             start_cmd = start_cmd_template.format(self.__params.metron_home, topology_flux, topology_props)
             Execute(start_cmd, user=self.__params.metron_user, tries=3, try_sleep=5, logoutput=True)
         else:
@@ -159,10 +159,10 @@ class EnrichmentCommands:
         Logger.info('Finished starting enrichment topology')
 
     def stop_enrichment_topology(self, env):
-        Logger.info('Stopping ' + self.__enrichment_topology)
+        Logger.info(f'Stopping {self.__enrichment_topology}')
 
         if self.is_topology_active(env):
-            stop_cmd = 'storm kill ' + self.__enrichment_topology
+            stop_cmd = f'storm kill {self.__enrichment_topology}'
             Execute(stop_cmd, user=self.__params.metron_user, tries=3, try_sleep=5, logoutput=True)
         else:
             Logger.info("Enrichment topology already stopped")
@@ -305,10 +305,16 @@ class EnrichmentCommands:
         :param env: Environment
         """
         Logger.info("Checking for Geo database")
-        metron_service.check_hdfs_file_exists(self.__params, self.__params.geoip_hdfs_dir + "/GeoLite2-City.tar.gz")
+        metron_service.check_hdfs_file_exists(
+            self.__params, f"{self.__params.geoip_hdfs_dir}/GeoLite2-City.tar.gz"
+        )
+
 
         Logger.info("Checking for ASN database")
-        metron_service.check_hdfs_file_exists(self.__params, self.__params.asn_hdfs_dir + "/GeoLite2-ASN.tar.gz")
+        metron_service.check_hdfs_file_exists(
+            self.__params, f"{self.__params.asn_hdfs_dir}/GeoLite2-ASN.tar.gz"
+        )
+
 
         Logger.info('Checking Kafka topics for Enrichment')
         metron_service.check_kafka_topics(self.__params, self.__get_topics())

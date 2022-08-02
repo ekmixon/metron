@@ -240,9 +240,13 @@ def get_request_status(ambari_url, user, password, cluster_name, request_id):
 def wait_for_request_complete(ambari_url, user, password, cluster_name, request_id, sleep_time):
     while True:
         status = get_request_status(ambari_url, user, password, cluster_name, request_id)
-        if status == 'COMPLETED':
-            return status
-        elif status in ['FAILED', 'TIMEDOUT', 'ABORTED', 'SKIPPED_FAILED']:
+        if status in [
+            'COMPLETED',
+            'FAILED',
+            'TIMEDOUT',
+            'ABORTED',
+            'SKIPPED_FAILED',
+        ]:
             return status
         else:
             time.sleep(sleep_time)
@@ -325,26 +329,28 @@ def can_add_component(ambari_url, user, password, cluster_name, component_name, 
 
 
 def get(ambari_url, user, password, path):
-    r = requests.get(ambari_url + path, auth=(user, password))
-    return r
+    return requests.get(ambari_url + path, auth=(user, password))
 
 
 def put(ambari_url, user, password, path, data):
     headers = {'X-Requested-By': 'ambari'}
-    r = requests.put(ambari_url + path, data=data, auth=(user, password), headers=headers)
-    return r
+    return requests.put(
+        ambari_url + path, data=data, auth=(user, password), headers=headers
+    )
 
 
 def post(ambari_url, user, password, path, data):
     headers = {'X-Requested-By': 'ambari'}
-    r = requests.post(ambari_url + path, data=data, auth=(user, password), headers=headers)
-    return r
+    return requests.post(
+        ambari_url + path, data=data, auth=(user, password), headers=headers
+    )
 
 
 def delete(ambari_url, user, password, path):
     headers = {'X-Requested-By': 'ambari'}
-    r = requests.delete(ambari_url + path, auth=(user, password), headers=headers)
-    return r
+    return requests.delete(
+        ambari_url + path, auth=(user, password), headers=headers
+    )
 
 
 from ansible.module_utils.basic import *

@@ -74,7 +74,7 @@ def kinit(kinit_path_local, keytab_path, principal_name, execute_user=None):
     kinit_lock = global_lock.get_lock(global_lock.LOCK_TYPE_KERBEROS)
     kinit_lock.acquire()
     kinitcmd = "{0} -kt {1} {2}; ".format(kinit_path_local, keytab_path, principal_name)
-    Logger.info("kinit command: " + kinitcmd + " as user: " + str(execute_user))
+    Logger.info(f"kinit command: {kinitcmd} as user: {str(execute_user)}")
     try:
         if execute_user is None:
             Execute(kinitcmd)

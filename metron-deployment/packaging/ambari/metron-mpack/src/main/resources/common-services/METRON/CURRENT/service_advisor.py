@@ -115,9 +115,9 @@ class METRON${metron.short.version}ServiceAdvisor(service_advisor.ServiceAdvisor
         # validate recommended properties in storm-site
         siteName = "storm-site"
         method = self.validateSTORMSiteConfigurations
-        items = self.validateConfigurationsForSite(configurations, recommendedDefaults, services, hosts, siteName, method)
-
-        return items
+        return self.validateConfigurationsForSite(
+            configurations, recommendedDefaults, services, hosts, siteName, method
+        )
 
     def getServiceConfigurationRecommendations(self, configurations, clusterData, services, hosts):
         is_secured = self.isSecurityEnabled(services)
@@ -140,19 +140,19 @@ class METRON${metron.short.version}ServiceAdvisor(service_advisor.ServiceAdvisor
             for property, desired_value in self.getSTORMSiteDesiredValues(is_secured).iteritems():
                 if property not in storm_site:
                     putStormSiteProperty(property, desired_value)
-                elif  property == "topology.classpath" and storm_site[property] != desired_value:
+                elif property == "topology.classpath" and storm_site[property] != desired_value:
                     topologyClasspath = storm_site[property]
                     #check that desired values exist in topology.classpath. append them if they do not
                     for path in desired_value.split(':'):
                         if path not in topologyClasspath:
-                            topologyClasspath += ":" + path
+                            topologyClasspath += f":{path}"
                     putStormSiteProperty(property,topologyClasspath)
 
         #Suggest Zeppelin Server URL
         if "zeppelin-config" in services["configurations"]:
             zeppelinServerHost = self.getComponentHostNames(services, "ZEPPELIN", "ZEPPELIN_MASTER")[0]
             zeppelinServerPort = services["configurations"]["zeppelin-config"]["properties"]["zeppelin.server.port"]
-            zeppelinServerUrl = zeppelinServerHost + ":" + zeppelinServerPort
+            zeppelinServerUrl = f"{zeppelinServerHost}:{zeppelinServerPort}"
             putMetronEnvProperty = self.putProperty(configurations, "metron-env", services)
             putMetronEnvProperty("zeppelin_server_url", zeppelinServerUrl)
 
@@ -161,7 +161,7 @@ class METRON${metron.short.version}ServiceAdvisor(service_advisor.ServiceAdvisor
             zookeeperHost = self.getComponentHostNames(services, "ZOOKEEPER", "ZOOKEEPER_SERVER")[0]
             zookeeperClientPort = services["configurations"]["zoo.cfg"]["properties"]["clientPort"]
             solrZkDir = services["configurations"]["solr-cloud"]["properties"]["solr_cloud_zk_directory"]
-            solrZookeeperUrl = zookeeperHost + ":" + zookeeperClientPort + solrZkDir
+            solrZookeeperUrl = f"{zookeeperHost}:{zookeeperClientPort}{solrZkDir}"
             putMetronEnvProperty = self.putProperty(configurations, "metron-env", services)
             putMetronEnvProperty("solr_zookeeper_url", solrZookeeperUrl)
 
@@ -174,15 +174,16 @@ class METRON${metron.short.version}ServiceAdvisor(service_advisor.ServiceAdvisor
         validationItems = []
 
         for property, desired_value in self.getSTORMSiteDesiredValues(is_secured).iteritems():
-            if property not in storm_site :
-                message = "Metron requires this property to be set to the recommended value of " + desired_value
+            if property not in storm_site:
+                message = f"Metron requires this property to be set to the recommended value of {desired_value}"
+
                 item = self.getErrorItem(message) if property == "topology.classpath" else self.getWarnItem(message)
                 validationItems.append({"config-name": property, "item": item})
-            elif  storm_site[property] != desired_value:
+            elif storm_site[property] != desired_value:
                 topologyClasspath = storm_site[property]
                 for path in desired_value.split(':'):
                     if path not in topologyClasspath:
-                        message = "Metron requires this property to contain " + desired_value
+                        message = f"Metron requires this property to contain {desired_value}"
                         item = self.getErrorItem(message)
                         validationItems.append({"config-name": property, "item": item})
 
@@ -190,8 +191,4 @@ class METRON${metron.short.version}ServiceAdvisor(service_advisor.ServiceAdvisor
 
     def getSTORMSiteDesiredValues(self, is_secured):
 
-        storm_site_desired_values = {
-            "topology.classpath" : "/etc/hbase/conf:/etc/hadoop/conf"
-        }
-
-        return storm_site_desired_values
+        return {"topology.classpath": "/etc/hbase/conf:/etc/hadoop/conf"}

@@ -78,7 +78,7 @@ def read_component(i):
                 url = tokens[-1].strip()
                 license = license_mapping[tokens[1].strip()]
                 if license is None:
-                    raise ValueError("unable to normalize license: " + tokens[1])
+                    raise ValueError(f"unable to normalize license: {tokens[1]}")
                 l = line.split(',')[0].strip()
                 ret[key] = { 'url' : url, 'license' : license }
         return ret
@@ -91,18 +91,23 @@ def get_blurb(component, license_info):
     tokens = component.split(':')
     artifact_id = tokens[1]
     version = tokens[3]
-    return "This product bundles " + artifact_id + " " + version + ", which is available under a \"" + license_info['license'] + "\" license.  " + "For details, see " + license_info['url']
+    return (
+        f"This product bundles {artifact_id} {version}"
+        + ", which is available under a \""
+        + license_info['license']
+        + "\" license.  "
+        + "For details, see "
+        + license_info['url']
+    )
 
 if __name__ == '__main__':
     components = read_component(sys.argv[1])
-    license = read_license(sys.argv[2]) 
+    license = read_license(sys.argv[2])
     for line in sys.stdin:
-        component = line.strip() 
+        component = line.strip()
         if len(component) == 0 or component == 'none' or component not in components:
             continue
-        else:
-            license_info = components[component]
-            if license_info['license'] in category_a_licenses:
-                license = license + "\n" +  get_blurb(component, license_info)
-            continue
-    print license
+        license_info = components[component]
+        if license_info['license'] in category_a_licenses:
+            license = license + "\n" +  get_blurb(component, license_info)
+    components = read_component(sys.argv[1])

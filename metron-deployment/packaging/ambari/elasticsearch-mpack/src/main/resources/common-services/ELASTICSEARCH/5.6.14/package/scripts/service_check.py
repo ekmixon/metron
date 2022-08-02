@@ -58,16 +58,16 @@ class ServiceCheck(Script):
         proc = subprocess.Popen(cmd_retrieve, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         (stdout, stderr) = proc.communicate()
         response_retrieve = stdout
-        Logger.info("Retrieval response is: %s" % response_retrieve)
+        Logger.info(f"Retrieval response is: {response_retrieve}")
         expected_retrieve = '{"_index":"%s","_type":"test","_id":"1","_version":1,"found":true,"_source":%s}' \
-            % (index, doc)
+                % (index, doc)
 
         # delete the test index
         cmd_delete = "curl -XDELETE 'http://%s:%s/%s'" % (host, port, index)
         proc = subprocess.Popen(cmd_delete, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         (stdout, stderr) = proc.communicate()
         response_delete = stdout
-        Logger.info("Delete index response is: %s" % response_retrieve)
+        Logger.info(f"Delete index response is: {response_retrieve}")
         expected_delete = '{"acknowledged":true}'
 
         if (expected_retrieve == response_retrieve) and (expected_delete == response_delete):

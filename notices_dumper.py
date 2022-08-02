@@ -21,16 +21,29 @@ import sys
 def merge_dicts(*dict_args):
     result = {}
     for dictionary in dict_args:
-        result.update(dictionary)
+        result |= dictionary
     return result
 
 def get_statement(component, version, license, location):
-    #This product bundles SuperWidget 1.2.3, which is available under a
-    #"3-clause BSD" license.
-    s = "This product bundles " + component + " " + version \
-      + ", which is available under a \"" + license + "\" license. " \
-      + "For details, see " + location + "/LICENSE." + component
-    return s
+    return (
+        (
+            (
+                (
+                    (
+                        (
+                            f"This product bundles {component} {version}"
+                            + ", which is available under a \""
+                        )
+                        + license
+                    )
+                    + "\" license. "
+                )
+                + "For details, see "
+            )
+            + location
+        )
+        + "/LICENSE."
+    ) + component
 
 licenses = {}
 for i in xrange(1, len(sys.argv)):

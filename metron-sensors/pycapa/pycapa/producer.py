@@ -44,8 +44,7 @@ def timestamp(pkt_hdr):
     """ Returns the timestamp of the packet in epoch milliseconds. """
 
     (epoch_secs, delta_micros) = pkt_hdr.getts()
-    epoch_micros = (epoch_secs * 1000000.0) + delta_micros
-    return epoch_micros
+    return (epoch_secs * 1000000.0) + delta_micros
 
 
 def delivery_callback(err, msg):

@@ -41,8 +41,7 @@ class ShellHandler(object):
     def ret_output(self, cmd):
         process = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
         output, unused_err = process.communicate()
-        retcode = process.poll()
-        if retcode:
+        if retcode := process.poll():
             raise subprocess.CalledProcessError(retcode, cmd, output=output)
         return output
 

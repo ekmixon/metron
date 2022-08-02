@@ -148,7 +148,7 @@ def main():
     # setup logging
     numeric_log_level = getattr(logging, args.log_level.upper(), None)
     if not isinstance(numeric_log_level, int):
-        raise ValueError('invalid log level: %s' % args.log_level)
+        raise ValueError(f'invalid log level: {args.log_level}')
     logging.basicConfig(level=numeric_log_level)
 
     clean_kafka_configs(args)

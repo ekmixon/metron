@@ -41,5 +41,8 @@ class CallbackModule(CallbackBase):
   def __init__(self):
     super(CallbackModule, self).__init__()
     if not version_requirement(__version__):
-      display('Metron requires Ansible %s or newer, current version is %s' % (MINIMUM_ANSIBLE_VERSION, __version__), color='red')
+      display(
+          f'Metron requires Ansible {MINIMUM_ANSIBLE_VERSION} or newer, current version is {__version__}',
+          color='red',
+      )
       sys.exit(1)

@@ -190,11 +190,11 @@ class IndexingCommands:
         Logger.info('Done creating HDFS indexing directory')
 
     def check_elasticsearch_templates(self):
+        # check for the index template
+        cmd = "curl -s -XGET \"http://{0}/_template/{1}\" | grep -o {1}"
+        err_msg="Missing Elasticsearch index template: name={0}"
         for template_name in self.get_templates():
 
-            # check for the index template
-            cmd = "curl -s -XGET \"http://{0}/_template/{1}\" | grep -o {1}"
-            err_msg="Missing Elasticsearch index template: name={0}"
             metron_service.execute(
               cmd=cmd.format(self.__params.es_http_url, template_name),
               user=self.__params.metron_user,
@@ -255,7 +255,7 @@ class IndexingCommands:
                 user=self.__params.metron_user)
 
     def start_batch_indexing_topology(self, env):
-        Logger.info('Starting ' + self.__batch_indexing_topology)
+        Logger.info(f'Starting {self.__batch_indexing_topology}')
 
         if not self.is_batch_topology_active(env):
             if self.__params.security_enabled:
@@ -274,7 +274,7 @@ class IndexingCommands:
         Logger.info('Finished starting batch indexing topology')
 
     def start_random_access_indexing_topology(self, env):
-        Logger.info('Starting ' + self.__random_access_indexing_topology)
+        Logger.info(f'Starting {self.__random_access_indexing_topology}')
 
         if not self.is_random_access_topology_active(env):
             if self.__params.security_enabled:
@@ -300,7 +300,7 @@ class IndexingCommands:
         Logger.info('Finished starting indexing topologies')
 
     def stop_batch_indexing_topology(self, env):
-        Logger.info('Stopping ' + self.__batch_indexing_topology)
+        Logger.info(f'Stopping {self.__batch_indexing_topology}')
 
         if self.is_batch_topology_active(env):
             if self.__params.security_enabled:
@@ -308,7 +308,7 @@ class IndexingCommands:
                                       self.__params.metron_keytab_path,
                                       self.__params.metron_principal_name,
                                       execute_user=self.__params.metron_user)
-            stop_cmd = 'storm kill ' + self.__batch_indexing_topology
+            stop_cmd = f'storm kill {self.__batch_indexing_topology}'
             Execute(stop_cmd, user=self.__params.metron_user, tries=3, try_sleep=5, logoutput=True)
 
         else:
@@ -317,7 +317,7 @@ class IndexingCommands:
         Logger.info('Done stopping batch indexing topologies')
 
     def stop_random_access_indexing_topology(self, env):
-        Logger.info('Stopping ' + self.__random_access_indexing_topology)
+        Logger.info(f'Stopping {self.__random_access_indexing_topology}')
 
         if self.is_random_access_topology_active(env):
             if self.__params.security_enabled:
@@ -325,7 +325,7 @@ class IndexingCommands:
                                       self.__params.metron_keytab_path,
                                       self.__params.metron_principal_name,
                                       execute_user=self.__params.metron_user)
-            stop_cmd = 'storm kill ' + self.__random_access_indexing_topology
+            stop_cmd = f'storm kill {self.__random_access_indexing_topology}'
             Execute(stop_cmd, user=self.__params.metron_user, tries=3, try_sleep=5, logoutput=True)
 
         else:
@@ -388,18 +388,21 @@ class IndexingCommands:
     def is_batch_topology_active(self, env):
         env.set_params(self.__params)
         topologies = metron_service.get_running_topologies(self.__params)
-        is_batch_running = False
-        if self.__batch_indexing_topology in topologies:
-            is_batch_running = topologies[self.__batch_indexing_topology] in ['ACTIVE', 'REBALANCING']
-        return is_batch_running
+        return (
+            topologies[self.__batch_indexing_topology] in ['ACTIVE', 'REBALANCING']
+            if self.__batch_indexing_topology in topologies
+            else False
+        )
 
     def is_random_access_topology_active(self, env):
         env.set_params(self.__params)
         topologies = metron_service.get_running_topologies(self.__params)
-        is_random_access_running = False
-        if self.__random_access_indexing_topology in topologies:
-            is_random_access_running = topologies[self.__random_access_indexing_topology] in ['ACTIVE', 'REBALANCING']
-        return is_random_access_running
+        return (
+            topologies[self.__random_access_indexing_topology]
+            in ['ACTIVE', 'REBALANCING']
+            if self.__random_access_indexing_topology in topologies
+            else False
+        )
 
     def is_topology_active(self, env):
         return self.is_batch_topology_active(env) and self.is_random_access_topology_active(env)
@@ -465,7 +468,7 @@ class IndexingCommands:
             else:
                 Logger.error("ERROR: Admin credentials config was not found in shiro.ini. Notebook import may fail.")
 
-            zeppelin_creds = "userName=%s&password=%s" % (username, password)
+            zeppelin_creds = f"userName={username}&password={password}"
             cmd = 'curl -i --data \'{0}\' -X POST \"http://{1}/api/login\" | grep JSESSIONID | grep -v deleteMe | tail -1'
             cmd = cmd.format(zeppelin_creds, params.zeppelin_server_url)
             return_code, stdout, stderr = get_user_call_output(cmd, user=params.metron_user)

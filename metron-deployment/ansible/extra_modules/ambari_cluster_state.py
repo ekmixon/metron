@@ -264,9 +264,8 @@ def set_cluster_state(ambari_url, user, password, cluster_name, cluster_state):
 def create_cluster(ambari_url, user, password, cluster_name, blueprint_name, configurations, hosts_json):
     path = '/api/v1/clusters/{0}'.format(cluster_name)
     data = json.dumps({'blueprint': blueprint_name, 'configurations': configurations, 'host_groups': hosts_json})
-    f = open('cluster.log', 'w')
-    f.write(data)
-    f.close()
+    with open('cluster.log', 'w') as f:
+        f.write(data)
     r = post(ambari_url, user, password, path, data)
     if r.status_code != 202:
         msg = 'Could not create cluster: request code {0}, \
@@ -289,9 +288,13 @@ def get_request_status(ambari_url, user, password, cluster_name, request_id):
 def wait_for_request_complete(ambari_url, user, password, cluster_name, request_id, sleep_time):
     while True:
         status = get_request_status(ambari_url, user, password, cluster_name, request_id)
-        if status == 'COMPLETED':
-            return status
-        elif status in ['FAILED', 'TIMEDOUT', 'ABORTED', 'SKIPPED_FAILED']:
+        if status in [
+            'COMPLETED',
+            'FAILED',
+            'TIMEDOUT',
+            'ABORTED',
+            'SKIPPED_FAILED',
+        ]:
             return status
         else:
             time.sleep(sleep_time)
@@ -318,10 +321,9 @@ def get_blueprints(ambari_url, user, password):
 
 def create_blueprint(ambari_url, user, password, blueprint_name, blueprint_data):
     data = json.dumps(blueprint_data)
-    f = open('blueprint.log', 'w')
-    f.write(data)
-    f.close()
-    path = "/api/v1/blueprints/" + blueprint_name
+    with open('blueprint.log', 'w') as f:
+        f.write(data)
+    path = f"/api/v1/blueprints/{blueprint_name}"
     r = post(ambari_url, user, password, path, data)
     if r.status_code != 201:
         msg = 'Could not create blueprint: request code {0}, \
@@ -346,26 +348,28 @@ def delete_cluster(ambari_url, user, password, cluster_name):
 
 
 def get(ambari_url, user, password, path):
-    r = requests.get(ambari_url + path, auth=(user, password))
-    return r
+    return requests.get(ambari_url + path, auth=(user, password))
 
 
 def put(ambari_url, user, password, path, data):
     headers = {'X-Requested-By': 'ambari'}
-    r = requests.put(ambari_url + path, data=data, auth=(user, password), headers=headers)
-    return r
+    return requests.put(
+        ambari_url + path, data=data, auth=(user, password), headers=headers
+    )
 
 
 def post(ambari_url, user, password, path, data):
     headers = {'X-Requested-By': 'ambari'}
-    r = requests.post(ambari_url + path, data=data, auth=(user, password), headers=headers)
-    return r
+    return requests.post(
+        ambari_url + path, data=data, auth=(user, password), headers=headers
+    )
 
 
 def delete(ambari_url, user, password, path):
     headers = {'X-Requested-By': 'ambari'}
-    r = requests.delete(ambari_url + path, auth=(user, password), headers=headers)
-    return r
+    return requests.delete(
+        ambari_url + path, auth=(user, password), headers=headers
+    )
 
 
 def blueprint_var_to_ambari_converter(blueprint_var):
@@ -373,21 +377,23 @@ def blueprint_var_to_ambari_converter(blueprint_var):
     new_groups = []
     host_map = []
     for group in groups:
-        components = []
-        for component in group['components']:
-            components.append({'name': component})
+        components = [{'name': component} for component in group['components']]
         group['components'] = components
         hosts = group.pop('hosts')
         new_groups.append(group)
-        this_host_map = dict()
-        this_host_map['name'] = group['name']
+        this_host_map = {'name': group['name']}
         this_host_list = [{'fqdn': host} for host in hosts]
         this_host_map['hosts'] = this_host_list
         host_map.append(this_host_map)
-    blueprint = dict()
-    blueprint['configurations'] = blueprint_var['required_configurations']
-    blueprint['host_groups'] = new_groups
-    blueprint['Blueprints'] = {'stack_name': blueprint_var['stack_name'], 'stack_version': blueprint_var['stack_version']}
+    blueprint = {
+        'configurations': blueprint_var['required_configurations'],
+        'host_groups': new_groups,
+        'Blueprints': {
+            'stack_name': blueprint_var['stack_name'],
+            'stack_version': blueprint_var['stack_version'],
+        },
+    }
+
     return blueprint, host_map
 
 from ansible.module_utils.basic import *

@@ -17,14 +17,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 """
+
 from ambari_commons import OSCheck
 from resource_management.libraries.functions.default import default
 from resource_management.libraries.functions.expect import expect
 
-if OSCheck.is_windows_family():
-  pass
-else:
-    from params_linux import *
+if not OSCheck.is_windows_family():
+  from params_linux import *
 
 java_home = config['hostLevelParams']['java_home']
 java_version = expect("/hostLevelParams/java_version", int)

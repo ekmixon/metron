@@ -125,16 +125,16 @@ class PcapCommands:
 
     def start_pcap_topology(self, env):
         Logger.info('Starting Metron PCAP topology')
-        start_cmd_template = """{0}/bin/start_pcap_topology.sh"""
         if not self.is_topology_active(env):
             if self.__params.security_enabled:
                 metron_security.kinit(self.__params.kinit_path_local,
                                       self.__params.metron_keytab_path,
                                       self.__params.metron_principal_name,
                                       execute_user=self.__params.metron_user)
+            start_cmd_template = """{0}/bin/start_pcap_topology.sh"""
             start_cmd = start_cmd_template.format(self.__params.metron_home)
             Execute(start_cmd, user=self.__params.metron_user, tries=3, try_sleep=5, logoutput=True)
-        else :
+        else:
             Logger.info('PCAP topology already started')
 
         Logger.info('Finished starting pcap topologies')
@@ -147,10 +147,10 @@ class PcapCommands:
                                       self.__params.metron_keytab_path,
                                       self.__params.metron_principal_name,
                                       execute_user=self.__params.metron_user)
-            stop_cmd = 'storm kill ' + self.__pcap_topology
+            stop_cmd = f'storm kill {self.__pcap_topology}'
             Execute(stop_cmd, user=self.__params.metron_user, tries=3, try_sleep=5, logoutput=True)
 
-        else :
+        else:
             Logger.info('PCAP topology already stopped')
 
         Logger.info('Finished starting PCAP topologies')

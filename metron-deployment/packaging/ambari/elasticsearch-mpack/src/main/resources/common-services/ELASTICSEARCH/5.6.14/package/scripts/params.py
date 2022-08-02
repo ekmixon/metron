@@ -20,11 +20,8 @@ limitations under the License.
 
 from resource_management.libraries.script import Script
 
-def yamlify_variables(var) :
-  if isinstance(var, type(True)):
-    return str(var).lower()
-  else:
-    return var
+def yamlify_variables(var):
+  return str(var).lower() if isinstance(var, type(True)) else var
 
 # server configurations
 config = Script.get_config()
@@ -85,7 +82,7 @@ network_host = config['configurations']['elastic-site']['network_host']
 network_publish_host = config['configurations']['elastic-site']['network_publish_host']
 
 limits_conf_dir = "/etc/security/limits.d"
-limits_conf_file = limits_conf_dir + "/elasticsearch.conf"
+limits_conf_file = f"{limits_conf_dir}/elasticsearch.conf"
 elastic_user_nofile_limit = config['configurations']['elastic-env']['elastic_user_nofile_limit']
 elastic_user_nproc_limit = config['configurations']['elastic-env']['elastic_user_nproc_limit']
 elastic_user_memlock_soft_limit = config['configurations']['elastic-env']['elastic_user_memlock_soft_limit']
@@ -100,8 +97,8 @@ elastic_status_check_user = 'root'
 # must be specified via systemd.
 # see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/setting-system-settings.html#systemd
 systemd_parent_dir = '/etc/systemd/system/'
-systemd_elasticsearch_dir = systemd_parent_dir + 'elasticsearch.service.d/'
-systemd_override_file = systemd_elasticsearch_dir + 'override.conf'
+systemd_elasticsearch_dir = f'{systemd_parent_dir}elasticsearch.service.d/'
+systemd_override_file = f'{systemd_elasticsearch_dir}override.conf'
 systemd_override_template = config['configurations']['elastic-systemd']['content']
 
 heap_size = config['configurations']['elastic-jvm-options']['heap_size']

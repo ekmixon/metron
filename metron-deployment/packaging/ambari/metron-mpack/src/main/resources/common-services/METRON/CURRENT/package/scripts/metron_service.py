@@ -200,7 +200,9 @@ def build_global_config_patch(params, patch_file):
 
 def patch_global_config(params):
   patch_file = "/tmp/metron-global-config-patch.json"
-  Logger.info("Setup temporary global config JSON patch (formatting per RFC6902): " + patch_file)
+  Logger.info(
+      f"Setup temporary global config JSON patch (formatting per RFC6902): {patch_file}"
+  )
   build_global_config_patch(params, patch_file)
 
   Logger.info('Patching global config in ZooKeeper')
@@ -212,7 +214,9 @@ def patch_global_config(params):
 
 def pull_config(params):
   Logger.info('Pulling all Metron configs down from ZooKeeper to local file system')
-  Logger.info('NOTE - THIS IS OVERWRITING THE LOCAL METRON CONFIG DIR WITH ZOOKEEPER CONTENTS: ' + params.metron_zookeeper_config_path)
+  Logger.info(
+      f'NOTE - THIS IS OVERWRITING THE LOCAL METRON CONFIG DIR WITH ZOOKEEPER CONTENTS: {params.metron_zookeeper_config_path}'
+  )
   Execute(ambari_format(
       "{metron_home}/bin/zk_load_configs.sh --zk_quorum {zookeeper_quorum} --mode PULL --output_dir {metron_zookeeper_config_path} --force"),
       path=ambari_format("{java_home}/bin")
@@ -578,31 +582,31 @@ def check_http(host, port, user):
       raise ComponentIsNotRunning()
 
 def check_indexer_parameters():
-    """
+  """
     Ensure that all required parameters have been defined for the chosen
     Indexer; either Solr or Elasticsearch.
     """
-    missing = []
-    config = Script.get_config()
-    indexer = config['configurations']['metron-indexing-env']['ra_indexing_writer']
-    Logger.info('Checking parameters for indexer = ' + indexer)
+  missing = []
+  config = Script.get_config()
+  indexer = config['configurations']['metron-indexing-env']['ra_indexing_writer']
+  Logger.info(f'Checking parameters for indexer = {indexer}')
 
-    if indexer == 'Solr':
-      # check for all required solr parameters
-      if not config['configurations']['metron-env']['solr_zookeeper_url']:
-        missing.append("metron-env/solr_zookeeper_url")
+  if indexer == 'Solr':
+    # check for all required solr parameters
+    if not config['configurations']['metron-env']['solr_zookeeper_url']:
+      missing.append("metron-env/solr_zookeeper_url")
 
-    else:
-      # check for all required elasticsearch parameters
-      if not config['configurations']['metron-env']['es_cluster_name']:
-        missing.append("metron-env/es_cluster_name")
-      if not config['configurations']['metron-env']['es_hosts']:
-        missing.append("metron-env/es_hosts")
-      if not config['configurations']['metron-env']['es_date_format']:
-        missing.append("metron-env/es_date_format")
+  else:
+    # check for all required elasticsearch parameters
+    if not config['configurations']['metron-env']['es_cluster_name']:
+      missing.append("metron-env/es_cluster_name")
+    if not config['configurations']['metron-env']['es_hosts']:
+      missing.append("metron-env/es_hosts")
+    if not config['configurations']['metron-env']['es_date_format']:
+      missing.append("metron-env/es_date_format")
 
-    if len(missing) > 0:
-      raise Fail("Missing required indexing parameters(s): indexer={0}, missing={1}".format(indexer, missing))
+  if missing:
+    raise Fail("Missing required indexing parameters(s): indexer={0}, missing={1}".format(indexer, missing))
 
 def install_metron_knox(params):
     if os.path.exists(params.knox_home):
